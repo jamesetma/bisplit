@@ -1,3 +1,6 @@
+import 'package:bisplit/controllers/auth_controller.dart';
+import 'package:bisplit/controllers/expense_controller.dart';
+import 'package:bisplit/controllers/group_controller.dart';
 import 'package:bisplit/firebase_options.dart';
 import 'package:bisplit/views/authgate.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,14 +12,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MainApp());
+  Get.put(AuthenController());
+  // Get.put(BudgetController());
+  Get.put(ExpenseController());
+  Get.put(GroupController());
+  runApp(MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(home: AuthGate());
+    return GetMaterialApp(
+      title: 'Budget App',
+      home: AuthGate(),
+    );
   }
 }

@@ -1,6 +1,6 @@
-import 'package:bisplit/views/authgate.dart';
+import 'package:bisplit/views/group_page.dart';
+import 'package:bisplit/views/pending_invitation_page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatelessWidget {
@@ -8,20 +8,30 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
+        title: Text('Home'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: Icon(Icons.mail),
             onPressed: () {
-              FirebaseAuth.instance
-                  .signOut()
-                  .then((value) => Get.offAll(() => AuthGate()));
+              Get.to(() => PendingInvitationsScreen());
             },
           ),
         ],
       ),
       body: Center(
-          child: Text("Welcome, ${FirebaseAuth.instance.currentUser?.email}!")),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Get.to(() => GroupScreen());
+              },
+              child: Text('Manage Groups'),
+            ),
+            // Additional buttons for other features can be added here
+          ],
+        ),
+      ),
     );
   }
 }
