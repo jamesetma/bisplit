@@ -1,4 +1,4 @@
-package com.example.bisplit
+package com.etma.bisplit
 
 import io.flutter.embedding.android.FlutterActivity
 
