@@ -19,7 +19,7 @@ class GroupScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Groups'),
+        title: Text('groups'.tr),
       ),
       body: FirestoreListView<Group>(
         query: groupController.getUserGroupsQuery(userId),

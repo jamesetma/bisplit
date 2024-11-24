@@ -5,7 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GroupController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth user = FirebaseAuth.instance;
+
   Query<Group> getUserGroupsQuery(String userId) {
     return firestore
         .collection('groups')
@@ -70,43 +71,45 @@ class GroupController extends GetxController {
   Query<Map<String, dynamic>> getPendingInvitationsQuery() {
     return firestore
         .collection('group_invitations')
-        .where('userId', isEqualTo: _auth.currentUser!.uid)
+        .where('userId', isEqualTo: user.currentUser!.uid)
         .where('status', isEqualTo: 'pending');
   }
 
-  Future<Map<String, double>> getUserExpenses(
-      String groupId, String userId) async {
-    QuerySnapshot<Map<String, dynamic>> expensesSnapshot = await firestore
-        .collection('expenses')
-        .where('groupId', isEqualTo: groupId)
-        .get();
-
-    Map<String, double> userExpenses = {};
-    for (var doc in expensesSnapshot.docs) {
-      String userName = doc['userName'];
-      double amount = doc['amount'];
-      bool isCompleted = doc['isCompleted'];
-      if (!isCompleted) {
-        if (userId == doc['userId']) {
-          userExpenses[userName] = (userExpenses[userName] ?? 0) + amount;
+  Stream<List<Map<String, String>>> getGroupMembersStream(String groupId) {
+    return firestore
+        .collection('groups')
+        .doc(groupId)
+        .snapshots()
+        .asyncMap((groupDoc) async {
+      List<String> memberIds =
+          List<String>.from(groupDoc.data()?['memberIds'] ?? []);
+      List<Map<String, String>> members = [];
+      for (String memberId in memberIds) {
+        DocumentSnapshot<Map<String, dynamic>> userDoc =
+            await firestore.collection('users').doc(memberId).get();
+        if (userDoc.exists) {
+          members.add({
+            'userId': memberId,
+            'displayName': userDoc.data()?['displayName'] ?? '',
+            'email': userDoc.data()?['email'] ?? '',
+          });
         }
       }
-    }
-    return userExpenses;
+      return members;
+    });
   }
 
-  Future<double> getTotalExpenses(String groupId) async {
-    QuerySnapshot<Map<String, dynamic>> expensesSnapshot = await firestore
+  Future<void> removeUserFromGroup(String groupId, String userId) async {
+    QuerySnapshot expensesSnapshot = await firestore
         .collection('expenses')
         .where('groupId', isEqualTo: groupId)
+        .where('userId', isEqualTo: userId)
         .get();
-
-    double totalExpenses = 0.0;
-    for (var doc in expensesSnapshot.docs) {
-      if (!doc['isCompleted']) {
-        totalExpenses += doc['amount'];
-      }
+    for (DocumentSnapshot expense in expensesSnapshot.docs) {
+      await expense.reference.delete();
     }
-    return totalExpenses;
+    await firestore.collection('groups').doc(groupId).update({
+      'memberIds': FieldValue.arrayRemove([userId])
+    });
   }
 }

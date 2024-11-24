@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/expense_controller.dart';
 import '../controllers/group_controller.dart';
+import '../controllers/settings_controller.dart';
 
 class GroupDetailScreen extends StatelessWidget {
   final Group group;
@@ -14,12 +15,12 @@ class GroupDetailScreen extends StatelessWidget {
   final ExpenseController expenseController = Get.find<ExpenseController>();
   final GroupController groupController = Get.find<GroupController>();
   final AuthenController authenController = Get.find<AuthenController>();
+  final SettingsController settingsController = Get.find<SettingsController>();
 
   @override
   Widget build(BuildContext context) {
     final String currentUserId = authenController.firebaseUser.value?.uid ?? '';
 
-    // Initialize total calculations
     expenseController.calculateTotals(group.id);
 
     return Scaffold(
@@ -40,22 +41,54 @@ class GroupDetailScreen extends StatelessWidget {
             double totalExpenses = expenseController.totalExpenses.value;
             int numberOfMembers = group.memberIds.length;
             double sharePerMember = totalExpenses / numberOfMembers;
+            String selectedCurrency = settingsController.selectedCurrency.value;
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text('Total Expenses: \$${totalExpenses.toStringAsFixed(2)}'),
-                  Text(
-                      'Each member should contribute: \$${sharePerMember.toStringAsFixed(2)}'),
-                  SizedBox(height: 16),
-                  Text('Expenses by User:'),
-                  ...expenseController.userExpenses.entries.map((entry) {
-                    return Text(
-                        '${entry.key}\'s total: \$${entry.value.toStringAsFixed(2)}');
-                  }).toList(),
-                ],
-              ),
+            return FutureBuilder<double>(
+              future: expenseController.convertCurrency(
+                  totalExpenses, 'USD', selectedCurrency),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                double convertedTotalExpenses = snapshot.data!;
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Text(
+                          'Total Expenses: ${convertedTotalExpenses.toStringAsFixed(2)} $selectedCurrency'),
+                      FutureBuilder<double>(
+                        future: expenseController.convertCurrency(
+                            sharePerMember, 'USD', selectedCurrency),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          double convertedSharePerMember = snapshot.data!;
+                          return Text(
+                              'Each member should contribute: ${convertedSharePerMember.toStringAsFixed(2)} $selectedCurrency');
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      Text('Expenses by User:'),
+                      ...expenseController.userExpenses.entries.map((entry) {
+                        return FutureBuilder<String>(
+                          future: expenseController.getUserNameById(entry.key),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            String userName = snapshot.data!;
+                            double convertedExpense = entry.value;
+                            return Text(
+                                '$userName\'s total: ${convertedExpense.toStringAsFixed(2)} $selectedCurrency');
+                          },
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
             );
           }),
           Expanded(
@@ -70,26 +103,36 @@ class GroupDetailScreen extends StatelessWidget {
                   itemCount: expenses.length,
                   itemBuilder: (context, index) {
                     final expense = expenses[index];
-                    return CheckboxListTile(
-                      title: Text(expense.name),
-                      subtitle: Text(
-                          'Amount: \$${expense.amount.toStringAsFixed(2)}\nAdded by: ${expense.userName}'),
-                      value: expense.isCompleted,
-                      onChanged: currentUserId == expense.userId
-                          ? (bool? value) {
-                              expenseController.toggleExpenseCompletion(
-                                  expense.id, value ?? false, group.id);
-                            }
-                          : null,
-                      secondary: currentUserId == expense.userId
-                          ? IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                expenseController.deleteExpense(
-                                    expense.id, group.id);
-                              },
-                            )
-                          : null,
+                    return FutureBuilder<double>(
+                      future: expenseController.convertCurrency(expense.amount,
+                          'USD', settingsController.selectedCurrency.value),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        double convertedAmount = snapshot.data!;
+                        return CheckboxListTile(
+                          title: Text(expense.name),
+                          subtitle: Text(
+                              'Amount: ${convertedAmount.toStringAsFixed(2)} ${settingsController.selectedCurrency.value}\nAdded by: ${expense.userName}'),
+                          value: expense.isCompleted,
+                          onChanged: currentUserId == expense.userId
+                              ? (bool? value) {
+                                  expenseController.toggleExpenseCompletion(
+                                      expense.id, value ?? false, group.id);
+                                }
+                              : null,
+                          secondary: currentUserId == expense.userId
+                              ? IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () {
+                                    expenseController.deleteExpense(
+                                        expense.id, group.id);
+                                  },
+                                )
+                              : null,
+                        );
+                      },
                     );
                   },
                 );

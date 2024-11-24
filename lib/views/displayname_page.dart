@@ -1,11 +1,37 @@
+import 'package:bisplit/controllers/auth_controller.dart';
 import 'package:bisplit/views/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/auth_controller.dart';
+import 'dart:io';
 
-class DisplayNameScreen extends StatelessWidget {
-  final AuthenController authController = Get.find<AuthenController>();
+import 'package:image_picker/image_picker.dart';
+
+class DisplayNameScreen extends StatefulWidget {
+  @override
+  _DisplayNameScreenState createState() => _DisplayNameScreenState();
+}
+
+class _DisplayNameScreenState extends State<DisplayNameScreen> {
+  final AuthenController authenController = Get.find<AuthenController>();
   final TextEditingController displayNameController = TextEditingController();
+  File? _imageFile;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+      }
+    });
+  }
+
+  void _submitDisplayName() async {
+    String displayName = displayNameController.text.trim();
+    await authenController.updateDisplayName(displayName, _imageFile);
+    Get.offAll(() => HomePage());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +48,16 @@ class DisplayNameScreen extends StatelessWidget {
               controller: displayNameController,
               decoration: InputDecoration(labelText: 'Display Name'),
             ),
+            SizedBox(height: 20),
+            _imageFile != null
+                ? Image.file(_imageFile!)
+                : IconButton(
+                    icon: Icon(Icons.add_a_photo),
+                    onPressed: _pickImage,
+                  ),
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                String displayName = displayNameController.text.trim();
-                if (displayName.isNotEmpty) {
-                  await authController.updateDisplayName(displayName);
-                  Get.offAll(() => HomePage());
-                } else {
-                  Get.snackbar('Error', 'Display name cannot be empty');
-                }
-              },
+              onPressed: _submitDisplayName,
               child: Text('Submit'),
             ),
           ],

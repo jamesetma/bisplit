@@ -1,5 +1,8 @@
 import 'package:bisplit/views/group_page.dart';
+import 'package:bisplit/views/notification_page.dart';
 import 'package:bisplit/views/pending_invitation_page.dart';
+import 'package:bisplit/views/profile_page.dart';
+import 'package:bisplit/views/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,8 +11,26 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('home'.tr),
         actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Get.to(() => NotificationsScreen());
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              Get.to(() => ProfilePage());
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Get.to(() => SettingsScreen());
+            },
+          ),
           IconButton(
             icon: Icon(Icons.mail),
             onPressed: () {
@@ -26,9 +47,8 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Get.to(() => GroupScreen());
               },
-              child: Text('Manage Groups'),
+              child: Text('manage_groups'.tr),
             ),
-            // Additional buttons for other features can be added here
           ],
         ),
       ),
