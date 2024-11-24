@@ -1,30 +1,21 @@
 import 'package:bisplit/views/authgate.dart';
+import 'package:bisplit/views/displayname_page.dart';
 import 'package:bisplit/views/home_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthenController extends GetxController {
-  // Firebase Auth instance
   static AuthenController instance = Get.find();
   late Rx<User?> firebaseUser;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  // Observable user for real-time updates
-  var user = Rxn<User>();
-
-  @override
-  void onInit() {
-    super.onInit();
-    // Bind FirebaseAuth user state changes to the `user` observable
-    user.bindStream(_auth.authStateChanges());
-  }
 
   @override
   void onReady() {
     super.onReady();
-    firebaseUser = Rx<User?>(_auth.currentUser);
-    firebaseUser.bindStream(_auth.userChanges());
+    firebaseUser = Rx<User?>(auth.currentUser);
+    firebaseUser.bindStream(auth.userChanges());
     ever(firebaseUser, _setInitialScreen);
   }
 
@@ -32,27 +23,60 @@ class AuthenController extends GetxController {
     if (user == null) {
       Get.offAll(() => AuthGate());
     } else {
-      _addUserToFirestore(user);
-      Get.offAll(() => HomePage());
+      _checkUserInFirestore(user);
     }
   }
 
-  Future<void> _addUserToFirestore(User user) async {
+  Future<void> _checkUserInFirestore(User user) async {
     DocumentSnapshot userDoc =
         await firestore.collection('users').doc(user.uid).get();
-    if (!userDoc.exists) {
+    if (userDoc.exists) {
+      String? displayName = userDoc['displayName'];
+      if (displayName == null || displayName.isEmpty) {
+        Get.offAll(() => DisplayNameScreen());
+      } else {
+        Get.offAll(() => HomePage());
+      }
+    } else {
+      Get.offAll(() => DisplayNameScreen());
+    }
+  }
+
+  Future<void> updateDisplayName(String displayName) async {
+    User? user = auth.currentUser;
+    if (user != null) {
+      await user.updateDisplayName(displayName);
       await firestore.collection('users').doc(user.uid).set({
         'email': user.email,
-        'displayName': user.displayName,
+        'displayName': displayName,
         'photoURL': user.photoURL,
         'uid': user.uid,
       });
     }
   }
 
-  // Log out the user
-  Future<void> logout() async {
-    await _auth.signOut();
-    Get.offAll(() => AuthGate());
+  void register(String email, password) async {
+    try {
+      await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+    } catch (e) {
+      Get.snackbar('Error creating account', e.message!);
+    }
   }
+
+  void login(String email, password) async {
+    try {
+      await auth.signInWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      Get.snackbar('Error signing in', e.message!);
+    }
+  }
+
+  void signOut() async {
+    await auth.signOut();
+  }
+}
+
+extension on Object {
+  get message => null;
 }

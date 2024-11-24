@@ -27,7 +27,8 @@ class GroupScreen extends StatelessWidget {
           final group = snapshot.data();
           return ListTile(
             title: Text(group.name),
-            subtitle: Text('Admin: ${group.adminId}'),
+            subtitle:
+                Text('Admin: ${authController.auth.currentUser!.displayName}'),
             onTap: () {
               Get.to(() => GroupDetailScreen(group: group));
             },
@@ -47,10 +48,16 @@ class GroupScreen extends StatelessWidget {
     TextEditingController nameController = TextEditingController();
 
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[

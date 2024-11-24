@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class GroupController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   Query<Group> getUserGroupsQuery(String userId) {
     return firestore
         .collection('groups')
@@ -73,5 +72,41 @@ class GroupController extends GetxController {
         .collection('group_invitations')
         .where('userId', isEqualTo: _auth.currentUser!.uid)
         .where('status', isEqualTo: 'pending');
+  }
+
+  Future<Map<String, double>> getUserExpenses(
+      String groupId, String userId) async {
+    QuerySnapshot<Map<String, dynamic>> expensesSnapshot = await firestore
+        .collection('expenses')
+        .where('groupId', isEqualTo: groupId)
+        .get();
+
+    Map<String, double> userExpenses = {};
+    for (var doc in expensesSnapshot.docs) {
+      String userName = doc['userName'];
+      double amount = doc['amount'];
+      bool isCompleted = doc['isCompleted'];
+      if (!isCompleted) {
+        if (userId == doc['userId']) {
+          userExpenses[userName] = (userExpenses[userName] ?? 0) + amount;
+        }
+      }
+    }
+    return userExpenses;
+  }
+
+  Future<double> getTotalExpenses(String groupId) async {
+    QuerySnapshot<Map<String, dynamic>> expensesSnapshot = await firestore
+        .collection('expenses')
+        .where('groupId', isEqualTo: groupId)
+        .get();
+
+    double totalExpenses = 0.0;
+    for (var doc in expensesSnapshot.docs) {
+      if (!doc['isCompleted']) {
+        totalExpenses += doc['amount'];
+      }
+    }
+    return totalExpenses;
   }
 }
