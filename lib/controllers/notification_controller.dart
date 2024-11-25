@@ -1,13 +1,12 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 
-class NotificationController extends GetxController {
-  var notifications = <String>[].obs;
+class NotificationsController extends GetxController {
+  final _notifications = <RemoteMessage>[].obs;
 
-  void addNotification(String notification) {
-    notifications.add(notification);
-  }
+  List<RemoteMessage> get notifications => _notifications;
 
-  void clearNotifications() {
-    notifications.clear();
+  void addNotification(RemoteMessage notification) {
+    _notifications.add(notification);
   }
 }

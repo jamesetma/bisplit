@@ -1,9 +1,11 @@
 import 'package:bisplit/controllers/auth_controller.dart';
 import 'package:bisplit/controllers/expense_controller.dart';
 import 'package:bisplit/controllers/group_controller.dart';
+import 'package:bisplit/controllers/notification_controller.dart';
 import 'package:bisplit/controllers/settings_controller.dart';
 import 'package:bisplit/firebase_options.dart';
 import 'package:bisplit/localization/translations.dart';
+import 'package:bisplit/notification_service.dart';
 import 'package:bisplit/views/authgate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +16,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Get.put(NotificationService());
 
+  // await NotificationService().initNotifications();
   Get.put(AuthenController());
+  Get.put(NotificationService());
+  Get.put(NotificationsController());
   Get.put(ExpenseController());
   Get.put(GroupController());
   Get.put(SettingsController());

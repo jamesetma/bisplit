@@ -85,6 +85,43 @@ class GroupDetailScreen extends StatelessWidget {
                           },
                         );
                       }).toList(),
+                      SizedBox(height: 16),
+                      Text('Balances:'),
+                      ...expenseController.balances.entries.map((entry) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FutureBuilder<String>(
+                              future:
+                                  expenseController.getUserNameById(entry.key),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+                                String userName = snapshot.data!;
+                                return Text('$userName owes:');
+                              },
+                            ),
+                            ...entry.value.entries.map((balanceEntry) {
+                              return FutureBuilder<String>(
+                                future: expenseController
+                                    .getUserNameById(balanceEntry.key),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                  String otherUserName = snapshot.data!;
+                                  double convertedBalance = balanceEntry.value;
+                                  return Text(
+                                      '$otherUserName: ${convertedBalance.toStringAsFixed(2)} $selectedCurrency');
+                                },
+                              );
+                            }).toList(),
+                          ],
+                        );
+                      }).toList(),
                     ],
                   ),
                 );

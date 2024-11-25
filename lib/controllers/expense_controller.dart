@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:bisplit/config.dart';
 import 'package:bisplit/models/expense_model.dart';
 import 'package:get/get.dart';
@@ -11,9 +10,9 @@ class ExpenseController extends GetxController {
 
   var totalExpenses = 0.0.obs;
   var userExpenses = <String, double>{}.obs;
-  var selectedCurrency = 'USD'.obs;
-  var currencies = <String>[].obs;
-  final String apiKey = Config.apiKey; // Load API key from config
+  var balances = <String, Map<String, double>>{}.obs;
+  final apiKey = Config();
+
   Stream<List<Expense>> getGroupExpensesStream(String groupId) {
     return firestore
         .collection('expenses')
@@ -44,7 +43,28 @@ class ExpenseController extends GetxController {
 
       totalExpenses.value = total;
       userExpenses.value = userExp;
+      calculateBalances(groupId, userExp);
     });
+  }
+
+  void calculateBalances(String groupId, Map<String, double> userExp) {
+    final balancesMap = <String, Map<String, double>>{};
+    double totalAmount = totalExpenses.value;
+    int numMembers = userExp.length;
+    double sharePerMember = totalAmount / numMembers;
+
+    userExp.forEach((userId, amountPaid) {
+      final Map<String, double> userBalance = {};
+      userExp.forEach((otherUserId, _) {
+        if (userId != otherUserId) {
+          double oweAmount = sharePerMember - amountPaid;
+          userBalance[otherUserId] = oweAmount;
+        }
+      });
+      balancesMap[userId] = userBalance;
+    });
+
+    balances.value = balancesMap;
   }
 
   Future<void> addExpense(Expense expense) async {

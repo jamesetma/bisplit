@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Expense {
-  String id;
-  String groupId;
-  String userId;
-  String userName;
-  String name;
-  double amount;
-  DateTime date;
-  bool isCompleted; // New field
+  final String id;
+  final String groupId;
+  final String userId;
+  final String userName;
+  final String name;
+  final double amount;
+  final DateTime date;
+  final bool isCompleted;
 
   Expense({
     required this.id,
@@ -18,19 +18,20 @@ class Expense {
     required this.name,
     required this.amount,
     required this.date,
-    this.isCompleted = false, // New field
+    this.isCompleted = false,
   });
 
-  factory Expense.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory Expense.fromDocument(DocumentSnapshot doc) {
+    Map data = doc.data() as Map;
     return Expense(
       id: doc.id,
-      groupId: doc.data()?['groupId'] ?? '',
-      userId: doc.data()?['userId'] ?? '',
-      userName: doc.data()?['userName'] ?? '',
-      name: doc.data()?['name'] ?? '',
-      amount: doc.data()?['amount']?.toDouble() ?? 0.0,
-      date: (doc.data()?['date'] as Timestamp).toDate(),
-      isCompleted: doc.data()?['isCompleted'] ?? false, // New field
+      groupId: data['groupId'] ?? '',
+      userId: data['userId'] ?? '',
+      userName: data['userName'] ?? '',
+      name: data['name'] ?? '',
+      amount: (data['amount'] ?? 0).toDouble(),
+      date: (data['date'] as Timestamp).toDate(),
+      isCompleted: data['isCompleted'] ?? false,
     );
   }
 
@@ -42,7 +43,7 @@ class Expense {
       'name': name,
       'amount': amount,
       'date': date,
-      'isCompleted': isCompleted, // New field
+      'isCompleted': isCompleted,
     };
   }
 }
