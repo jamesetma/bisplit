@@ -7,6 +7,8 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 class DisplayNameScreen extends StatefulWidget {
+  const DisplayNameScreen({super.key});
+
   @override
   _DisplayNameScreenState createState() => _DisplayNameScreenState();
 }
@@ -37,7 +39,7 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Display Name'),
+        title: const Text('Enter Display Name'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -46,19 +48,19 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
           children: <Widget>[
             TextField(
               controller: displayNameController,
-              decoration: InputDecoration(labelText: 'Display Name'),
+              decoration: const InputDecoration(labelText: 'Display Name'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _imageFile != null
                 ? Image.file(_imageFile!)
                 : IconButton(
-                    icon: Icon(Icons.add_a_photo),
+                    icon: const Icon(Icons.add_a_photo),
                     onPressed: _pickImage,
                   ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitDisplayName,
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),

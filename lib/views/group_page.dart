@@ -12,6 +12,8 @@ class GroupScreen extends StatelessWidget {
   final ExpenseController expenseController = Get.find<ExpenseController>();
   final AuthenController authController = Get.find<AuthenController>();
 
+  GroupScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final String userId =
@@ -39,7 +41,7 @@ class GroupScreen extends StatelessWidget {
         onPressed: () {
           _showCreateGroupBottomSheet(context);
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -63,7 +65,7 @@ class GroupScreen extends StatelessWidget {
             children: <Widget>[
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Group Name'),
+                decoration: const InputDecoration(labelText: 'Group Name'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -73,7 +75,7 @@ class GroupScreen extends StatelessWidget {
                   groupController.createGroup(nameController.text, userId);
                   Navigator.pop(context);
                 },
-                child: Text('Create Group'),
+                child: const Text('Create Group'),
               ),
             ],
           ),

@@ -75,7 +75,7 @@ class AuthenController extends GetxController {
         photoURL = user.photoURL;
       }
       String initials = displayName.isNotEmpty ? displayName[0] : '';
-      await firestore.collection('users').doc(user.uid).update({
+      await firestore.collection('users').doc(user.uid).set({
         'displayName': displayName,
         'photoURL': photoURL ?? initials,
       });

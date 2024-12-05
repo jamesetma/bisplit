@@ -5,7 +5,7 @@ import '../controllers/group_controller.dart';
 
 class InviteUserScreen extends StatelessWidget {
   final String groupId;
-  InviteUserScreen({required this.groupId});
+  InviteUserScreen({super.key, required this.groupId});
 
   final GroupController groupController = Get.find<GroupController>();
   final AuthenController authenController = Get.find<AuthenController>();
@@ -17,7 +17,7 @@ class InviteUserScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invite User'),
+        title: const Text('Invite User'),
       ),
       body: Column(
         children: [
@@ -28,7 +28,7 @@ class InviteUserScreen extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'User Email',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () async {
                     String email = emailController.text.trim();
                     String userId =
@@ -49,13 +49,13 @@ class InviteUserScreen extends StatelessWidget {
               stream: groupController.getGroupMembersStream(groupId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No members in this group'));
+                  return const Center(child: Text('No members in this group'));
                 }
 
                 List<Map<String, String>> members = snapshot.data!;
@@ -72,24 +72,24 @@ class InviteUserScreen extends StatelessWidget {
                       subtitle: Text(member['email'] ?? ''),
                       trailing: isAdmin && member['userId'] != currentUserId
                           ? IconButton(
-                              icon:
-                                  Icon(Icons.remove_circle, color: Colors.red),
+                              icon: const Icon(Icons.remove_circle,
+                                  color: Colors.red),
                               onPressed: () async {
                                 bool confirm = await Get.dialog<bool>(
                                       AlertDialog(
-                                        title: Text('Remove Member'),
+                                        title: const Text('Remove Member'),
                                         content: Text(
                                             'Are you sure you want to remove ${member['displayName']} from the group?'),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
                                                 Get.back(result: false),
-                                            child: Text('Cancel'),
+                                            child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () =>
                                                 Get.back(result: true),
-                                            child: Text('Remove'),
+                                            child: const Text('Remove'),
                                           ),
                                         ],
                                       ),

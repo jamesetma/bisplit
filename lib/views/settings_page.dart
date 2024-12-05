@@ -5,6 +5,8 @@ import '../controllers/settings_controller.dart';
 class SettingsScreen extends StatelessWidget {
   final SettingsController settingsController = Get.put(SettingsController());
 
+  SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,18 +24,18 @@ class SettingsScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () =>
                       settingsController.changeLanguage('en', 'US'),
-                  child: Text('English'),
+                  child: const Text('English'),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () =>
                       settingsController.changeLanguage('ar', 'SA'),
-                  child: Text('العربية'),
+                  child: const Text('العربية'),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Text('Currency'),
+            const SizedBox(height: 20),
+            const Text('Currency'),
             Obx(() => DropdownButton<String>(
                   value: settingsController.selectedCurrency.value,
                   items: settingsController.currencies.map((String value) {
@@ -53,11 +55,35 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: settingsController.deleteAccount,
-              child: Text('delete_account'.tr),
+              onPressed: () => _showDeleteAccountDialog(context),
+              child: const Text('Delete Account'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+            'Are you sure you want to delete your account? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              settingsController.deleteAccount();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

@@ -7,6 +7,8 @@ import 'package:bisplit/controllers/auth_controller.dart';
 class AuthGate extends StatelessWidget {
   final AuthenController authController = Get.find<AuthenController>();
 
+  AuthGate({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SignInScreen(

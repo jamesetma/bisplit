@@ -8,11 +8,13 @@ class ProfilePage extends StatelessWidget {
   final ProfileController profileController = Get.put(ProfileController());
   final ImagePicker _picker = ImagePicker();
 
+  ProfilePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final TextEditingController displayNameController = TextEditingController();
 
-    Future<void> _pickImage() async {
+    Future<void> pickImage() async {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
@@ -34,7 +36,7 @@ class ProfilePage extends StatelessWidget {
               : null;
 
           return profileController.isLoading.value
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -47,26 +49,27 @@ class ProfilePage extends StatelessWidget {
                               profileController.displayName.value.isNotEmpty
                                   ? profileController.displayName.value[0]
                                   : '',
-                              style: TextStyle(fontSize: 40),
+                              style: const TextStyle(fontSize: 40),
                             )
                           : null,
                     ),
                     TextButton.icon(
-                      icon: Icon(Icons.add_a_photo),
-                      label: Text('Change Photo'),
-                      onPressed: _pickImage,
+                      icon: const Icon(Icons.add_a_photo),
+                      label: const Text('Change Photo'),
+                      onPressed: pickImage,
                     ),
                     TextField(
                       controller: displayNameController,
-                      decoration: InputDecoration(labelText: 'Display Name'),
+                      decoration:
+                          const InputDecoration(labelText: 'Display Name'),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
                         profileController.updateProfile(
                             displayNameController.text, null);
                       },
-                      child: Text('Update Profile'),
+                      child: const Text('Update Profile'),
                     ),
                   ],
                 );

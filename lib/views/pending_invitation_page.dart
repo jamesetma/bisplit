@@ -6,11 +6,13 @@ import '../controllers/group_controller.dart';
 class PendingInvitationsScreen extends StatelessWidget {
   final GroupController groupController = Get.find<GroupController>();
 
+  PendingInvitationsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pending Invitations'),
+        title: const Text('Pending Invitations'),
       ),
       body: FirestoreListView<Map<String, dynamic>>(
         query: groupController.getPendingInvitationsQuery(),
@@ -25,13 +27,13 @@ class PendingInvitationsScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: Icon(Icons.check),
+                  icon: const Icon(Icons.check),
                   onPressed: () {
                     groupController.acceptGroupInvitation(invitationId);
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
                     groupController.rejectGroupInvitation(invitationId);
                   },

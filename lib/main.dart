@@ -16,19 +16,21 @@ void main() async {
   );
 
   Get.put(AuthenController());
-  Get.put(ExpenseController());
   Get.put(GroupController());
+  Get.put(ExpenseController());
   Get.put(SettingsController());
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: AppTranslations(),
-      locale: Locale('en', 'US'),
-      fallbackLocale: Locale('en', 'US'),
+      locale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('en', 'US'),
       title: 'Budget App',
       home: AuthGate(),
     );
